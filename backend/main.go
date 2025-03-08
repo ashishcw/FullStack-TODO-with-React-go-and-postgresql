@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -19,6 +19,14 @@ type ToDo struct {
 
 var dbTempInstance *sql.DB
 
+// func main() {
+// 	e := echo.New()
+// 	e.GET("/", func(c echo.Context) error {
+// 		return c.String(http.StatusOK, "Hello, World!")
+// 	})
+// 	e.Logger.Fatal(e.Start(":1323"))
+// }
+
 func main() {
 	connectToDatabase()
 
@@ -27,8 +35,11 @@ func main() {
 	// wrap the router with CORS and JSON content type middlewares
 	enableCORS(jsonContentTypeMiddleware(newEcho))
 
-	newEcho.GET("/api/v1/users", getUsers)
+	newEcho.GET("/api/v1/users/:id", getUsers)
+	//newEcho.GET("/users/:id", getUser)
+	//newEcho.GET("/api/v1/users", getUser)
 
+	fmt.Print("Hello World")
 	newEcho.Logger.Fatal(newEcho.Start("localhost:8000"))
 
 }
@@ -82,33 +93,37 @@ func getUsers(c echo.Context) error {
 	// 	log.Fatal("Db instance can not be null")
 	// }
 
-	rows, err := dbTempInstance.Query("SELECT * FROM todotasklist")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
+	id := c.Param("id")
 
-	users := []ToDo{} // array of users
-	for rows.Next() {
-		var u ToDo
-		if err := rows.Scan(&u.Id, &u.TaskTitle, &u.CompletionStatus); err != nil {
-			log.Fatal(err)
-		}
-		users = append(users, u)
-	}
-	if err := rows.Err(); err != nil {
-		log.Fatal(err)
-	}
-	var jsonResponse = json.NewEncoder(c.Response().Writer).Encode(users)
-	if jsonResponse == nil {
-		return err
-	}
-	return jsonResponse
+	return c.String(http.StatusOK, id)
+
+	// rows, err := dbTempInstance.Query("SELECT * FROM todotasklist")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer rows.Close()
+
+	// users := []ToDo{} // array of users
+	// for rows.Next() {
+	// 	var u ToDo
+	// 	if err := rows.Scan(&u.Id, &u.TaskTitle, &u.CompletionStatus); err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	users = append(users, u)
+	// }
+	// if err := rows.Err(); err != nil {
+	// 	log.Fatal(err)
+	// }
+	// var jsonResponse = json.NewEncoder(c.Response().Writer).Encode(users)
+	// if jsonResponse == nil {
+	// 	return err
+	// }
+	// return jsonResponse
 }
 
-// // e.GET("/users/:id", getUser)
-// func getUser(c echo.Context) error {
-// 	// User ID from path `users/:id`
-// 	id := c.Param("id")
-// 	return c.String(http.StatusOK, id)
-// }
+// e.GET("/users/:id", getUser)
+func getUser(c echo.Context) error {
+	// User ID from path `users/:id`
+	id := c.Param("id")
+	return c.String(http.StatusOK, id)
+}

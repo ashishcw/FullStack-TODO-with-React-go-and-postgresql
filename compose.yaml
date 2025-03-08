@@ -1,6 +1,6 @@
 services:
   go_web_app_service:
-    container_name: goapp:1.24
+    container_name: goapp-1.24
     image: golang:1.24.1-alpine3.21
     build:
       context: ./backend
@@ -14,7 +14,7 @@ services:
 
 # database service
   db_service:
-    container_name: postgres:14.17
+    container_name: postgres-14.17
     image: postgres:14.17
     environment:
       POSTGRES_USER: postgres
